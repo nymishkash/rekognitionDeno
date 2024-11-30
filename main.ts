@@ -4,7 +4,6 @@ import {
     DetectTextCommand,
     RecognizeCelebritiesCommand,
     DetectModerationLabelsCommand,
-    GetImagePropertiesCommand,
   } from "npm:@aws-sdk/client-rekognition";
   
   const AWS_CONFIG = {
@@ -54,8 +53,7 @@ import {
         labelResponse,
         textResponse,
         celebrityResponse,
-        moderationResponse,
-        imagePropertiesResponse
+        moderationResponse
       ] = await Promise.all([
         // Detect labels (objects, scenes, concepts)
         rekognition.send(new DetectLabelsCommand({
@@ -78,15 +76,10 @@ import {
         rekognition.send(new DetectModerationLabelsCommand({
           Image: { Bytes: imageBytes },
           MinConfidence: 50,
-        })),
-  
-        // Get image properties
-        rekognition.send(new GetImagePropertiesCommand({
-          Image: { Bytes: imageBytes },
         }))
       ]);
   
-      // Comprehensive result object with all available data
+      // Comprehensive result object
       const result = {
         // General labels and scene detection
         labels: {
@@ -125,14 +118,6 @@ import {
             acc[label.ParentName].push(label);
             return acc;
           }, {}),
-        },
-  
-        // Image properties
-        properties: {
-          quality: imagePropertiesResponse.Quality,
-          backgroundColor: imagePropertiesResponse.Background,
-          foregroundColor: imagePropertiesResponse.Foreground,
-          dominantColors: imagePropertiesResponse.DominantColors,
         },
   
         // Image metadata
